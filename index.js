@@ -1,10 +1,17 @@
 const canvas = document.getElementById("content");
 let ctx = canvas.getContext("2d");
 
-ctx.strokeStyle = 'brown';
+ctx.strokeStyle = 'black';
 
-const n = 20;
+const n = 30;
+const refreshTime = 100;
 const size = 500 / n;
+
+const sizeSpan = document.getElementById("size");
+sizeSpan.innerHTML = n;
+
+const refreshTimeSpan = document.getElementById("refresh-time");
+refreshTimeSpan.innerHTML = refreshTime;
 
 function toLeft(start) { return { x: start.x - size, y: start.y } }
 function toTop(start) { return { x: start.x, y: start.y - size } }
@@ -24,6 +31,7 @@ function labelToStyle(label) {
     case 0: return 'white';
     case 1: return 'lawngreen';
     case 2: return 'crimson';
+    case 3: return 'deepskyblue';
     default: return 'grey';
   }
 }
@@ -48,7 +56,8 @@ function fillCell(row, col, element, maze) {
     label = 2;
   }
   ctx.fillStyle = labelToStyle(label);
-  ctx.fillRect(x + (center/2), y + (center/2), size / 2, size / 2);
+  const sizeDiv = 2;
+  ctx.fillRect(x + (center/sizeDiv), y + (center/sizeDiv), size / sizeDiv, size / sizeDiv);
 }
 
 // drawLine({x: 0, y: 0}, {x: size, y: 0});
@@ -72,7 +81,6 @@ function drawMaze(maze) {
   })
 }
 
-const refreshTime = 100;
 const maze = new Maze(n, refreshTime);
 
 setInterval(() => drawMaze(maze), refreshTime);

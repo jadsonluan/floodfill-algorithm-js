@@ -11,10 +11,25 @@
       align-items: center;
       justify-content: center;
       border: 2px solid;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    #info {
+      position: fixed;
+      top: 50px;
+      left: 50px;
+      background-color: #252525;
+      color: white;
+      padding: 20px;
     }
   </style>
 </head>
 <body>
+  <div id="info">
+    Size: <span id="size"></span><br/>
+    Refresh time: <span id="refresh-time"></span>ms<br/>
+  </div>
+
   <canvas id="content" width="500" height="500"></canvas>
   <script src="a-mazer.js"></script>
   <script src="index.js"></script>
