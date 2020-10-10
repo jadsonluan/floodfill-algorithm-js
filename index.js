@@ -79,4 +79,4 @@ function initMaze(n, refreshTime) {
   new Maze(n, refreshTime, drawCell, fillCell, write);
 }
 
-initMaze(10, 100);
+initMaze(30, 0);
