@@ -55,7 +55,7 @@ class Cell {
 }
 
 class Maze {
-  constructor(size, refreshTime, drawCell, fillCell, write) {
+  constructor(size, refreshTime, drawCell, fillCell) {
     this.size = size;
     this.entrance = { row: random(size), col: 0 };
     this.exit = { row: random(size), col: size - 1 };
@@ -63,7 +63,6 @@ class Maze {
     this.refreshTime = refreshTime;
     this.drawCell = drawCell;
     this.fillCell = fillCell;
-    this.write = write;
     this.init();
   }
 
@@ -94,20 +93,20 @@ class Maze {
   }
 
   async makeSolvable() {
-    this.write("🌊 Iniciando FloodFill a partir da entrada procurando a célula de saída.");
+    console.log("🌊 Iniciando FloodFill a partir da entrada procurando a célula de saída.");
     let solved = await this.floodfill(this.entrance, this.exit, ENTRANCE_LABEL);
 
     if (solved) {
-      this.write("✅ Esse labirinto tem solução!");
+      console.log("✅ Esse labirinto tem solução!");
     } else {
-      this.write("❌ Solução não encontrada.");
-      this.write("🌊 Iniciando FloodFill a partir da saída procurando uma célula com label da entrada.");
+      console.log("❌ Solução não encontrada.");
+      console.log("🌊 Iniciando FloodFill a partir da saída procurando uma célula com label da entrada.");
       solved = await this.floodfill(this.exit, this.entrance, EXIT_LABEL, ENTRANCE_LABEL);
 
       this.clearLabels();
       if (!solved) {
-        this.write("❌ Solução não encontrada.");
-        this.write("🌊 Iniciando FloodFill a partir da entrada procurando uma célula sem label para quebrar uma parede.");
+        console.log("❌ Solução não encontrada.");
+        console.log("🌊 Iniciando FloodFill a partir da entrada procurando uma célula sem label para quebrar uma parede.");
         solved = await this.floodfill(this.entrance, this.exit, ENTRANCE_LABEL, DEFAULT_LABEL);
       }
 
@@ -167,7 +166,7 @@ class Maze {
           neighbor[opposite(direction)] == WALL && 
           this.createDoor(position, direction)
       ) {
-        this.write(`🚪 Criando uma porta em ${adjacent.row} ${adjacent.col}`);
+        console.log(`🚪 Criando uma porta em ${adjacent.row} ${adjacent.col}`);
         return true;
       }
     }

@@ -1,7 +1,6 @@
 const canvas = document.getElementById("content");
 const sizeSpan = document.getElementById("size");
 const refreshTimeSpan = document.getElementById("refresh-time");
-const history = document.getElementById("history");
 
 let ctx = canvas.getContext("2d");
 
@@ -64,11 +63,6 @@ const fillCell = (position, element, maze) => {
   ctx.fillRect(x + (center/sizeDiv), y + (center/sizeDiv), size / sizeDiv, size / sizeDiv);
 }
 
-const write = (text) => {
-  history.appendChild(document.createElement("br"))
-  history.innerHTML += text;
-}
-
 function initMaze(n, refreshTime) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   size = 500 / n;
@@ -76,7 +70,7 @@ function initMaze(n, refreshTime) {
   sizeSpan.innerHTML = n;
   refreshTimeSpan.innerHTML = refreshTime;
 
-  new Maze(n, refreshTime, drawCell, fillCell, write);
+  new Maze(n, refreshTime, drawCell, fillCell);
 }
 
 initMaze(30, 0);
