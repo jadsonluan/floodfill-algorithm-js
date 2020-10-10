@@ -1,17 +1,11 @@
 const canvas = document.getElementById("content");
+const sizeSpan = document.getElementById("size");
+const refreshTimeSpan = document.getElementById("refresh-time");
+const history = document.getElementById("history");
+
 let ctx = canvas.getContext("2d");
 
 ctx.strokeStyle = 'black';
-
-const n = 30;
-const refreshTime = 100;
-const size = 500 / n;
-
-const sizeSpan = document.getElementById("size");
-sizeSpan.innerHTML = n;
-
-const refreshTimeSpan = document.getElementById("refresh-time");
-refreshTimeSpan.innerHTML = refreshTime;
 
 function toLeft(start) { return { x: start.x - size, y: start.y } }
 function toTop(start) { return { x: start.x, y: start.y - size } }
@@ -29,58 +23,60 @@ function drawLine(from, to) {
 function labelToStyle(label) {
   switch(label) {
     case 0: return 'white';
-    case 1: return 'lawngreen';
-    case 2: return 'crimson';
-    case 3: return 'deepskyblue';
+    case 1: return 'deepskyblue';
+    case 2: return 'orange';
     default: return 'grey';
   }
 }
 
-function drawCell(row, col, element) {
+const drawCell = (position, element) => {
+  const row = position.row;
+  const col = position.col;
   const topLeft = { x: col * size, y: row * size };
   const bottomRight = { x: topLeft.x + size, y: topLeft.y + size };
+  
+  ctx.clearRect(topLeft.x, topLeft.y, size, size);
+
   if (element.left == WALL) drawLine(topLeft, toBottom(topLeft));
   if (element.top == WALL) drawLine(topLeft, toRight(topLeft));
   if (element.right == WALL) drawLine(bottomRight, toTop(bottomRight));
   if (element.bottom == WALL) drawLine(bottomRight, toLeft(bottomRight));
 }
 
-function fillCell(row, col, element, maze) {
+const fillCell = (position, element, maze) => {
+  const row = position.row;
+  const col = position.col;
   const center = size / 2;
   const x = col * size;
   const y = row * size;
-  let label = element.label;
+  let style;
   if (maze.entrance.row == row && maze.entrance.col == col) {
-    label = 1;
+    style = 'lawngreen';
   } else if (maze.exit.row == row && maze.exit.col == col) {
-    label = 2;
+    style = 'crimson';
+  } else {
+    style = labelToStyle(element.label);
   }
-  ctx.fillStyle = labelToStyle(label);
+  
+  ctx.fillStyle = style;
+  
   const sizeDiv = 2;
   ctx.fillRect(x + (center/sizeDiv), y + (center/sizeDiv), size / sizeDiv, size / sizeDiv);
 }
 
-// drawLine({x: 0, y: 0}, {x: size, y: 0});
-
-function cell(left, top, right, bottom) { return { left, top, right, bottom }}
-
-function emptyCell() { return new Cell(WALL, WALL, WALL, WALL); }
-
-// const maze = [
-//   [ new Cell(WALL, WALL, DOOR, WALL), new Cell(DOOR, WALL, WALL, DOOR), new Cell(WALL, WALL, WALL, WALL) ],
-//   [ new Cell(WALL, WALL, WALL, WALL), new Cell(WALL, DOOR, WALL, WALL), new Cell(WALL, WALL, WALL, WALL) ],
-//   [ new Cell(WALL, WALL, WALL, WALL), new Cell(WALL, WALL, WALL, WALL), new Cell(WALL, WALL, WALL, WALL) ]
-// ]
-
-function drawMaze(maze) {
-  maze.maze.forEach((row, i) => {
-    row.forEach((element, j) => {
-      drawCell(i, j, element);
-      fillCell(i, j, element, maze);
-    })
-  })
+const write = (text) => {
+  history.appendChild(document.createElement("br"))
+  history.innerHTML += text;
 }
 
-const maze = new Maze(n, refreshTime);
+function initMaze(n, refreshTime) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  size = 500 / n;
+  
+  sizeSpan.innerHTML = n;
+  refreshTimeSpan.innerHTML = refreshTime;
 
-setInterval(() => drawMaze(maze), refreshTime);
+  new Maze(n, refreshTime, drawCell, fillCell, write);
+}
+
+initMaze(10, 100);

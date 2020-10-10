@@ -55,12 +55,15 @@ class Cell {
 }
 
 class Maze {
-  constructor(size) {
+  constructor(size, refreshTime, drawCell, fillCell, write) {
     this.size = size;
     this.entrance = { row: random(size), col: 0 };
     this.exit = { row: random(size), col: size - 1 };
     this.maze = this.createMaze(size);
     this.refreshTime = refreshTime;
+    this.drawCell = drawCell;
+    this.fillCell = fillCell;
+    this.write = write;
     this.init();
   }
 
@@ -77,49 +80,95 @@ class Maze {
   }
 
   async init() {
-    console.log("init");
     this.maze.forEach((row, i) => {
       row.forEach((element, j) => {
         this.randomizeWalls({row: i, col: j});
+        this.drawCell({row: i, col: j}, element);
       })
     })
 
-    console.log("entrance", this.entrance);
-    console.log("exit", this.exit);
+    fillCell(this.entrance, this.getCell(this.entrance), this);
+    fillCell(this.exit, this.getCell(this.exit), this);
 
     await this.makeSolvable();
   }
 
   async makeSolvable() {
-    const solved = await this.floodfill(this.entrance, this.exit, 3);
+    this.write("🌊 Iniciando FloodFill a partir da entrada procurando a célula de saída.");
+    let solved = await this.floodfill(this.entrance, this.exit, ENTRANCE_LABEL);
+
     if (solved) {
-      alert("[✅] Esse labirinto tem solução!");
+      this.write("✅ Esse labirinto tem solução!");
     } else {
-      alert("[❌] Esse labirinto não possui solução.");
+      this.write("❌ Solução não encontrada.");
+      this.write("🌊 Iniciando FloodFill a partir da saída procurando uma célula com label da entrada.");
+      solved = await this.floodfill(this.exit, this.entrance, EXIT_LABEL, ENTRANCE_LABEL);
+
+      this.clearLabels();
+      if (!solved) {
+        this.write("❌ Solução não encontrada.");
+        this.write("🌊 Iniciando FloodFill a partir da entrada procurando uma célula sem label para quebrar uma parede.");
+        solved = await this.floodfill(this.entrance, this.exit, ENTRANCE_LABEL, DEFAULT_LABEL);
+      }
+
+      this.clearLabels();
+      await this.makeSolvable();
     }
   }
 
-  async floodfill(from, to, replacementLabel) {
-    await sleep(this.refreshTime)
+  clearLabels() {
+    this.maze.forEach((row, i) => {
+      row.forEach((element, j) => {
+        element.label = DEFAULT_LABEL;
+        this.drawCell({row: i, col: j}, element);
+        this.fillCell({row: i, col: j}, element, this);
+      })
+    })
+  }
 
+  async floodfill(from, to, replacementLabel, targetLabel=undefined) {
     if (from.row == to.row && from.col == to.col) return true;
     if (!this.inRange(from)) return false;
+    if (targetLabel != undefined && this.findAndBreakWall(from, targetLabel)) return true;    
     if (this.getCell(from).label == replacementLabel) return false;
-
+    
     const current = this.getCell(from);
     current.label = replacementLabel;
+    this.fillCell(from, current, this)
 
-    const directions = [Direction.LEFT, Direction.TOP, Direction.RIGHT, Direction.BOTTOM];
-
+    const directions = [Direction.RIGHT, Direction.TOP, Direction.BOTTOM, Direction.LEFT];
+    await sleep(this.refreshTime)
     for (let i = 0; i < directions.length; i++) {
       let direction = directions[i];
       let adjacent = getAdjacentPosition(from, direction);
       let connectedByDoor = current[direction] == DOOR;
 
       if (this.inRange(adjacent) && connectedByDoor) {
-        let solved = await this.floodfill(adjacent, to, replacementLabel);
+        let solved = await this.floodfill(adjacent, to, replacementLabel, targetLabel);
         if (solved) 
           return true;
+      }
+    }
+
+    return false;
+  }
+
+  findAndBreakWall(position, targetLabel) {
+    const directions = [Direction.LEFT, Direction.TOP, Direction.RIGHT, Direction.BOTTOM];
+    
+    for (let i = 0; i < directions.length; i++) {
+      const direction = directions[i];
+      let adjacent = getAdjacentPosition(position, direction);
+
+      if (!this.inRange(adjacent)) continue;
+      let neighbor = this.getCell(adjacent); 
+
+      if (neighbor.label == targetLabel && 
+          neighbor[opposite(direction)] == WALL && 
+          this.createDoor(position, direction)
+      ) {
+        this.write(`🚪 Criando uma porta em ${adjacent.row} ${adjacent.col}`);
+        return true;
       }
     }
 
@@ -151,8 +200,13 @@ class Maze {
     const element = this.getCell(position);
     element[direction] = DOOR;
 
-    const neighbor = this.getNeighbor(position, direction);
+    const neighborPosition = getAdjacentPosition(position, direction);
+    const neighbor = this.getCell(neighborPosition, direction);
     neighbor[opposite(direction)] = DOOR;
+
+    this.drawCell(position, element);
+    this.drawCell(neighborPosition, neighbor);
+
     return true;
   }
 

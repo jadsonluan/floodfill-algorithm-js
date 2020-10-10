@@ -9,26 +9,39 @@
       height: 600px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       border: 2px solid;
       font-family: Arial, Helvetica, sans-serif;
     }
 
+    canvas { margin: 10px; }
+
     #info {
       position: fixed;
-      top: 50px;
-      left: 50px;
-      background-color: #252525;
+      top: 10px;
+      right: 10px;
+      background-color: #333;
       color: white;
-      padding: 20px;
+      padding: 5px;
+    }
+
+    #history {
+      align-self: flex-start;
+      padding: 10px;
     }
   </style>
 </head>
 <body>
   <div id="info">
-    Size: <span id="size"></span><br/>
-    Refresh time: <span id="refresh-time"></span>ms<br/>
+    <div>
+      Size: <span id="size"></span>
+    </div>
+    <div>
+      Refresh time: <span id="refresh-time"></span>ms<br/>
+    </div>
   </div>
+
+  <div id="history"></div>
 
   <canvas id="content" width="500" height="500"></canvas>
   <script src="a-mazer.js"></script>
