@@ -3,7 +3,7 @@ let ctx = canvas.getContext("2d");
 
 ctx.strokeStyle = 'brown';
 
-const n = 30;
+const n = 20;
 const size = 500 / n;
 
 function toLeft(start) { return { x: start.x - size, y: start.y } }
@@ -63,20 +63,16 @@ function emptyCell() { return new Cell(WALL, WALL, WALL, WALL); }
 //   [ new Cell(WALL, WALL, WALL, WALL), new Cell(WALL, WALL, WALL, WALL), new Cell(WALL, WALL, WALL, WALL) ]
 // ]
 
-const maze = new Maze(n);
-
-setInterval(() => {
+function drawMaze(maze) {
   maze.maze.forEach((row, i) => {
     row.forEach((element, j) => {
       drawCell(i, j, element);
       fillCell(i, j, element, maze);
     })
   })
-}, 100);
-
-async function demo() {
-  await maze.makeSolvable();
-  console.log("Im back");
 }
 
-demo();
+const refreshTime = 100;
+const maze = new Maze(n, refreshTime);
+
+setInterval(() => drawMaze(maze), refreshTime);

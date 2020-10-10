@@ -60,7 +60,8 @@ class Maze {
     this.entrance = { row: random(size), col: 0 };
     this.exit = { row: random(size), col: size - 1 };
     this.maze = this.createMaze(size);
-    this.init(this.maze);
+    this.refreshTime = refreshTime;
+    this.init();
   }
 
   createMaze(size) {
@@ -75,7 +76,7 @@ class Maze {
     return maze;
   }
 
-  init() {
+  async init() {
     console.log("init");
     this.maze.forEach((row, i) => {
       row.forEach((element, j) => {
@@ -86,14 +87,10 @@ class Maze {
     console.log("entrance", this.entrance);
     console.log("exit", this.exit);
 
-    // this.makeSolvable();
-
-    // this.maze[this.entrance.row][this.entrance.col].label = ENTRANCE_LABEL;
-    // this.maze[this.exit.row][this.exit.col].label = EXIT_LABEL;
+    await this.makeSolvable();
   }
 
   async makeSolvable() {
-    // await sleep(10000);
     const solved = await this.floodfill(this.entrance, this.exit, 3);
     if (solved) {
       alert("[✅] Esse labirinto tem solução!");
@@ -103,7 +100,7 @@ class Maze {
   }
 
   async floodfill(from, to, replacementLabel) {
-    await sleep(100)
+    await sleep(this.refreshTime)
 
     if (from.row == to.row && from.col == to.col) return true;
     if (!this.inRange(from)) return false;
@@ -133,7 +130,7 @@ class Maze {
     const directions = [Direction.RIGHT, Direction.TOP, Direction.BOTTOM, Direction.LEFT];
     
     directions.forEach(direction => {
-      const shouldCreateDoor = choice([true, false, false]);
+      const shouldCreateDoor = choice([true, false]);
       if (shouldCreateDoor) {
         this.createDoor(position, direction);
       }
