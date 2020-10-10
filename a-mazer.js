@@ -130,7 +130,7 @@ class Maze {
   }
 
   randomizeWalls(position) {
-    const directions = [Direction.LEFT, Direction.TOP, Direction.RIGHT, Direction.BOTTOM];
+    const directions = [Direction.RIGHT, Direction.TOP, Direction.BOTTOM, Direction.LEFT];
     
     directions.forEach(direction => {
       const shouldCreateDoor = choice([true, false, false]);
