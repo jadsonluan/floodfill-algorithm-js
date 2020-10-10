@@ -130,7 +130,7 @@ class Maze {
     const directions = [Direction.RIGHT, Direction.TOP, Direction.BOTTOM, Direction.LEFT];
     
     directions.forEach(direction => {
-      const shouldCreateDoor = choice([true, false]);
+      const shouldCreateDoor = choice([true, false, false]);
       if (shouldCreateDoor) {
         this.createDoor(position, direction);
       }
