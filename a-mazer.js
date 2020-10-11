@@ -93,26 +93,35 @@ class Maze {
   }
 
   async makeSolvable() {
-    console.log("🌊 Iniciando FloodFill a partir da entrada procurando a célula de saída.");
-    let solved = await this.floodfill(this.entrance, this.exit, ENTRANCE_LABEL);
+    let solved = false;
+    let fromEntrance = true;
+    
+    while (true) {
+      this.clearLabels();
+      console.log("🌊 Iniciando FloodFill a partir da entrada procurando a célula de saída.");
+      solved = await this.floodfill(this.entrance, this.exit, ENTRANCE_LABEL);
+      if (solved) break;
 
-    if (solved) {
-      console.log("✅ Esse labirinto tem solução!");
-    } else {
       console.log("❌ Solução não encontrada.");
       console.log("🌊 Iniciando FloodFill a partir da saída procurando uma célula com label da entrada.");
       solved = await this.floodfill(this.exit, this.entrance, EXIT_LABEL, ENTRANCE_LABEL);
-
+      if (solved) continue;
+      
       this.clearLabels();
-      if (!solved) {
-        console.log("❌ Solução não encontrada.");
+      console.log("❌ Solução não encontrada.");
+      
+      if (fromEntrance) {
         console.log("🌊 Iniciando FloodFill a partir da entrada procurando uma célula sem label para quebrar uma parede.");
-        solved = await this.floodfill(this.entrance, this.exit, ENTRANCE_LABEL, DEFAULT_LABEL);
+        await this.floodfill(this.entrance, this.exit, ENTRANCE_LABEL, DEFAULT_LABEL);
+      } else {
+        console.log("🌊 Iniciando FloodFill a partir da saída procurando uma célula sem label para quebrar uma parede.");
+        await this.floodfill(this.exit, this.entrance, EXIT_LABEL, DEFAULT_LABEL)
       }
 
-      this.clearLabels();
-      await this.makeSolvable();
+      fromEntrance = !fromEntrance
     }
+
+    console.log("✅ Esse labirinto tem solução!");
   }
 
   clearLabels() {
